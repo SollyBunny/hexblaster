@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"/>
+		<title> Hex Blaster </title>
+		<style>
+			:root {
+				--ground-height: 30vh;
+			}
+			body {
+				padding: 0;
+				margin: 0;
+				overflow: hidden;
+				background: linear-gradient(#8ddcfc 50%, #d1f0fc 100%) 100% 100%;
+				height: 100vh;
+			}
+			#can,
+			#sky {
+				position: absolute;
+				bottom: var(--ground-height);
+				height: calc(100vh - var(--ground-height));
+				width: 100vw;
+			}
+			#sun {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 15vh;
+				height: 15vh;
+				background-color: yellow;
+				border-radius: 0 0 15vh 0;
+			}
+			#cloud1 {
+				--cloud-offset: 10vw;
+				--cloud-topoffset: 7vh;
+			}
+			#cloud2 {
+				--cloud-offset: 12vw;
+				--cloud-topoffset: 4vh;
+			}
+			#cloud3 {
+				--cloud-offset: 13vw;
+				--cloud-topoffset: 9vh;
+				--cloud-speed: 45s;
+			}
+			#cloud4 {
+				--cloud-offset: 44vw;
+				--cloud-topoffset: 13vh;
+			}
+			#cloud5 {
+				--cloud-offset: 46vw;
+				--cloud-topoffset: 15vh;
+			}
+			#cloud6 {
+				--cloud-offset: 41vw;
+				--cloud-topoffset: 14vh;
+			}
+			#cloud7 {
+				--cloud-offset: 75vw;
+				--cloud-topoffset: 9vh;
+			}
+			#cloud8 {
+				--cloud-offset: 77vw;
+				--cloud-topoffset: 8vh;
+			}
+			.cloud {
+				position: absolute;
+				top: var(--cloud-topoffset);
+				left: var(--cloud-offset);
+				width: 10vh;
+				height: 5vh;
+				opacity: 0.6;
+				border-radius: 5vh;
+				background: white;
+				box-shadow: 10px 10px rgba(0,0,0,0.2);
+			}
+			#mountin1 {
+				--mountin-opacity: 0.2;
+				--mountin-scale: 1.7;
+				--mountin-offset: 5%;
+			}
+			#mountin2 {
+				--mountin-opacity: 0.3;
+				--mountin-scale: 1.3;
+				--mountin-offset: -10%;
+			}
+			#mountin3 {
+				--mountin-opacity: 0.5;
+				--mountin-scale: 1;
+				--mountin-offset: 3%;
+			}
+			#mountin4 {
+				--mountin-opacity: 0.7;
+				--mountin-scale: 1;
+				--mountin-offset: 20%;
+			}
+			#mountin5 {
+				--mountin-opacity: 0.7;
+				--mountin-scale: 0.4;
+				--mountin-offset: 15%;
+			}
+			.mountin {
+				position: absolute;
+				bottom: -1px;
+				left: var(--mountin-offset);
+				width: calc(30vh * var(--mountin-scale));
+				height: calc(30vh * var(--mountin-scale));
+				background: linear-gradient(0, #666666, #555555, #555555 calc((30vh * var(--mountin-scale)) - 7.5vh), white calc((30vh * var(--mountin-scale)) - 7.5vh), white);
+  				opacity: var(--mountin-opacity);
+  				clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  				box-shadow: 0 1px 1px 1px rgba(0,0,0,0.5);
+			}
+			.mountin > div {
+				position: absolute;
+				top: 7.5vh;
+				height: 2.5vh;
+				width: 100%;
+				background:
+					linear-gradient( 135deg, white 25%, transparent 25%) -2.5vh 0,
+					linear-gradient(-135deg, white 25%, transparent 25%) -2.5vh 0;
+			    background-size: 2.5vh 2.5vh;
+			}
+			#ground {
+				position: absolute;
+				bottom: 0;
+				height: var(--ground-height);
+				width: 100vw;
+				background-color: var(--color-ground-mid);
+				box-shadow: 0 -1px 1px 1px var(--color-ground-top);
+				--color-ground-top: #5ee842;
+				--color-ground-mid: #3bad18;
+				--color-ground-bot: #856400;
+			}
+			#groundtop {
+				position: absolute;
+				top: 0;
+				height: 2.5vh;
+				width: 100vw;
+				background-color: var(--color-ground-top);
+			}
+			#groundmid {
+				position: absolute;
+				top: 2.5vh;
+				height: 5vh;
+				width: 100vw;
+				background: 
+					linear-gradient( 135deg, var(--color-ground-top) 25%, transparent 25%) -2.5vh 0,
+					linear-gradient(-135deg, var(--color-ground-top) 25%, transparent 25%) -2.5vh 0,
+					linear-gradient(  45deg, var(--color-ground-bot) 25%, transparent 25%),
+					linear-gradient( -45deg, var(--color-ground-bot) 25%, transparent 25%);
+			    background-size: 5vh 5vh;
+			}
+			#groundbot {
+				position: absolute;
+				top: 7.5vh;
+				bottom:  0;
+				width: 100vw;
+				background: var(--color-ground-bot);
+			}
+			#player {
+				position: absolute;
+				bottom: calc(var(--ground-height) - 1vh);
+				width: 10vh;
+				height: 10vh;
+				transform: translateX(50vw);
+			}
+				#player > img {
+					transform: translateX(-50%);
+					width: 100%;
+					height: 100%;
+				}
+			@keyframes rotate {
+				to { transform: rotate(2deg) }
+			}
+			#score {
+				font-size: 20vw;
+				font-weight: 900;
+				width: 100vw;
+				text-align: center;
+				color: white;
+				text-shadow: 10px 10px rgba(0,0,0,0.2);
+				position: fixed;
+				animation: rotate 2s alternate infinite ease-in-out;
+			}
+			#cover {
+				position: fixed;
+				z-index: 100;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background: none;
+				opacity: 1;
+				transition: 0.2s ease opacity;
+			}
+			#coverplay {
+				position: absolute;
+				font-weight: 900;
+				border-radius: 2vmin;
+				bottom: 10vh;
+				width: 40vmin;
+				left: calc(50% - 20vmin);
+				font-size: 50px;
+				color: white;
+				background-image: linear-gradient(135deg, rgba(0, 0, 255, 0.5), rgba(0, 0, 128, 0.5));
+				transition: 0.2s ease background-image;
+				outline: none;
+				border: none;
+			}
+			#coverplay:hover {
+				background-image: linear-gradient(135deg, rgba(128, 0, 0, 0.5), rgba(255, 0, 0, 0.5));
+			}
+		</style>
+	</head>
+	<body>
+		<div id="sky">
+			<div id="sun"></div>
+			<div class="cloud" id="cloud1"> </div>
+			<div class="cloud" id="cloud2"> </div>
+			<div class="cloud" id="cloud3"> </div>
+			<div class="cloud" id="cloud4"> </div>
+			<div class="cloud" id="cloud5"> </div>
+			<div class="cloud" id="cloud6"> </div>
+			<div class="cloud" id="cloud7"> </div>
+			<div class="cloud" id="cloud8"> </div>
+			<div class="mountin" id="mountin1"> <div> </div> </div>
+			<div class="mountin" id="mountin2"> <div> </div> </div>
+			<div class="mountin" id="mountin3"> <div> </div> </div>
+			<div class="mountin" id="mountin4"> <div> </div> </div>
+			<div class="mountin" id="mountin5"> <div> </div> </div>
+		</div>
+		<div id="score"> Hex Blaster </div>
+		<canvas id="can"> 
+			Your browser does not support canvas element. ):
+		</canvas>
+		<div id="ground"> 
+			<div id="groundtop"> </div> 
+			<div id="groundmid"> </div> 
+			<div id="groundbot"> </div> 
+		</div>
+		<div id="player"><img src="cannon.svg"></div>
+		<div id="cover"> 
+			<button id="coverplay" onclick="start()"> PLAY </button>
+		</div>
+		<script>
+
+			//document.location = "https://yari-demos.prod.mdn.mozit.cloud/en-US/docs/Web/API/Touch_events/_sample_.example.html";
+
+			const HEXANGLE = 2 * Math.PI / 6;
+
+			let gradients;
+
+			let i, m, j, s, x;
+
+			let playing = false;
+
+			let el_player, el_score, el_cover, can, ctx;
+			let balls, bullets, score, fire;
+			let bulletstoclear;
+			//let sound = null;
+			
+			let lt = 0;
+			let dt
+			function frame(t) {
+
+				if (!playing) {
+					ctx.clearRect(0, 0, can.width, can.height);
+					return;
+				}
+			
+				dt = t - lt;
+				lt = t;
+				fps = 1/dt * 1000;
+
+				ctx.clearRect(0, 0, can.width, can.height);
+				ctx.textAlign = "center"; 
+				ctx.font = "30px sans-serif";
+
+				ctx.fillStyle = "black";
+				ctx.beginPath();
+				for (i = 0; i < bullets.length; ++i) {
+					bullets[i][1] -= dt / 1000;
+					if (bullets[i][1] < 0) {
+						bullets[i] = undefined;
+						continue;
+					}
+					
+					for (m = 0; m < balls.length; ++m) {
+						if (balls[m] == undefined) continue;
+						s = 16 * (2 ** balls[m][6]);
+						if (
+							Math.abs(bullets[i][0] - balls[m][0]) < s / 2 &&
+							Math.abs(bullets[i][1] - balls[m][1]) < (s / 2) / can.width
+						) {
+							//audio.play();
+							--balls[m][4];
+							++score;
+							if (balls[m][4] == 0) {
+								score += s;
+								--balls[m][6];
+								if (balls[m][6] == 0) {
+									balls[m] = undefined;
+								} else {
+									j = Math.floor(balls[m][5] / 2) + 1 + Math.floor(Math.random() * 5);
+									balls[m][4] = balls[m][5] + Math.floor(Math.random() * 5);
+									balls.push([
+										balls[m][0],
+										balls[m][1],
+										balls[m][2] * -1,
+										balls[m][3],
+										j,
+										j,
+										balls[m][6]
+									]);
+								}
+							}
+							bullets[i] = undefined;
+							break;
+						}
+					}
+					if (bullets[i] === undefined) continue;
+					ctx.moveTo(
+						bullets[i][0] - 2.5, Math.floor(bullets[i][1] * (can.height - el_player.clientHeight))
+					); // prevent smearing
+					ctx.arc(
+						bullets[i][0] - 2.5, Math.floor(bullets[i][1] * (can.height - el_player.clientHeight)), 
+						5, 0, 2 * Math.PI, false
+					);
+				}
+				ctx.fill();
+				bullets = bullets.filter((a) => {return a != undefined});
+				balls   = balls.filter((a) => {return a != undefined});
+
+				for (i = 0; i < balls.length; ++i) {
+					s = 16 * (2 ** balls[i][6]);
+					if (Math.abs(balls[i][0] - x) < el_player.clientWidth * 0.6 && balls[i][1] > 1 - ((el_player.clientHeight * 0.7 + s) / can.height)) {
+						stop();
+						return;
+					}
+					if (balls[i][5] < 5) {
+						ctx.fillStyle = gradients[0];
+					} else if (balls[i][5] < 10) {
+						ctx.fillStyle = gradients[1];
+					} else if (balls[i][5] < 20) {
+						ctx.fillStyle = gradients[2];
+					} else {
+						ctx.fillStyle = gradients[3];
+					}
+					ctx.beginPath();
+					for (j = 0; j < 6; ++j) {
+						ctx.lineTo(
+							Math.floor(balls[i][0] + s * Math.cos(HEXANGLE * j) / 2),
+							Math.floor((balls[i][1] * can.height) + (s / 2) + s * Math.sin(HEXANGLE * j) / 2)
+						);
+					}
+					ctx.closePath();
+					ctx.fill();
+					ctx.fillStyle = "white";
+					ctx.fillText(balls[i][4], balls[i][0], Math.floor(balls[i][1] * can.height) + (s / 2) + 10);
+					balls[i][0] += balls[i][2] * dt;
+					balls[i][1] -= balls[i][3] * dt;
+					if (balls[i][0] < s / 2    ) {
+						balls[i][2] = 0.05;
+						balls[i][0] += 1;
+					} else if (balls[i][0] > can.width - (s / 2)) {
+						balls[i][2] = -0.05;
+						balls[i][0] -= 1;
+					}
+					balls[i][3] -= 0.1 * dt / 50000;
+					if (balls[i][1] > 1 - (s / can.height)) { 
+						balls[i][3] = 0.0015 + Math.random() * 0.0005;
+					}
+				}
+				if (scoreOnTheDisplay !== score) {
+					scoreOnTheDisplay = score;
+					el_score.textContent = score;
+				}
+				window.requestAnimationFrame(frame);
+			}
+			let scoreOnTheDisplay = -1;
+
+			function addbullet() {
+				bullets.push([x, 1]);
+			}
+
+			function addball() {
+				if (!playing) return;
+				if (balls.length > 5) {
+					window.setTimeout(addball, 5000);
+					return;
+				}
+				m = Math.random() > 0.5;
+				j = Math.floor(Math.random() * 50) + 1;
+				balls.push([
+					m ? 0 : can.width, // x
+					Math.floor(Math.random() * 0.5) + 0.5, // y
+					m ? 0.05 : -0.05, // xv
+					0.001, // yv
+					j, // points
+					j, // original points
+					Math.floor(Math.random() * 4) + 1, // split
+				]);
+				if (j < 10) {
+					window.setTimeout(addball, 500);
+				} else {
+					window.setTimeout(addball, (500 + Math.random() * 100) * j);
+				}
+			}
+
+			window.onload = () => {
+
+				x = window.innerWidth / 2;
+				
+				el_player = document.getElementById("player");
+				el_score  = document.getElementById("score");
+				el_cover  = document.getElementById("cover");
+				
+				can = document.getElementById("can");
+				ctx = can.getContext("2d");
+				ctx.imageSmoothingEnabled = false;
+
+				gradients = [
+					ctx.createLinearGradient(0, 0, can.width, can.height),
+					ctx.createLinearGradient(0, 0, can.width, can.height),
+					ctx.createLinearGradient(0, 0, can.width, can.height),
+					ctx.createLinearGradient(0, 0, can.width, can.height)
+				];
+				gradients[0].addColorStop(0, "#049bed");
+				gradients[0].addColorStop(1, "#0427ed");
+				gradients[1].addColorStop(0, "#08db47");
+				gradients[1].addColorStop(1, "#08dbb1");
+				gradients[2].addColorStop(0, "#ed5d04");
+				gradients[2].addColorStop(1, "#edd204");
+				gradients[3].addColorStop(0, "#ed0404");
+				gradients[3].addColorStop(1, "#ed7804");
+
+				window.onresize = () => {
+					can.width = can.clientWidth;
+					can.height = can.clientHeight;
+				}
+				window.onresize();
+
+				window.onpointermove = event => {
+					if (!playing) return;
+					event.preventDefault();
+					x = Math.floor(event.clientX || (event.changedTouches ? event.changedTouches["0"].screenX : NaN));
+					if (x == undefined) return; // prevent some errors
+					if (x > window.innerWidth - (el_player.width / 2)) {
+						x = window.innerWidth - (el_player.width / 2);
+					} else if (x < el_player.width / 2) {
+						x = el_player.width / 2;
+					}
+					el_player.style.transform = `translateX(${x}px)`;
+				}
+
+				window.onpointerdown = event => {
+					if (!playing) return;
+					event.preventDefault();
+					if (fire != undefined) return;
+					fire = window.setInterval(addbullet, 50);
+				}
+
+				window.onpointerup = window.onpointerup = event => {
+					if (!playing) return;
+					event.preventDefault();
+					if (fire == undefined) return;
+					window.clearInterval(fire);
+					fire = undefined;
+				}
+
+				window.oncontextmenu = event => {
+					if (!playing) return;
+					event.preventDefault(); // mostly for phones which do weird stuff
+				}
+
+			}
+
+			function start() {
+				playing = true;
+				balls = [];
+				bullets = [];
+				score = 0;
+				fire = undefined;
+				el_cover.style.opacity = "0";
+				window.requestAnimationFrame(frame);
+				window.setTimeout(addball, 500);
+			}
+
+			function stop() {
+				playing = false;
+				if (fire !== undefined) {
+					window.clearInterval(fire);
+					fire = undefined;
+				}
+				el_cover.style.opacity = "1";
+				el_player.style.transform = "translateX(50vw)";
+				el_score.innerHTML = "Hex Blaster";
+			}
+
+			/*window.AudioContext = window.AudioContext||window.webkitAudioContext;
+			let context = new window.AudioContext();
+			let req = new XMLHttpRequest();
+			req.open("GET", "./sound.mp3", true);
+			req.responceType = "arraybuffer";
+			req.onload = () => {
+				context.decodeAudioData(req.responce, (buf) => { sound = buf; });
+			};
+			req.send();*/
+
+		</script>
+	</body>
+</html>
